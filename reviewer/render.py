@@ -110,9 +110,9 @@ def print_review(console: Console, review: Review, files: list[FileDiff], demo: 
         if review.count(sev):
             table.add_row(f"{ICONS[sev]} {sev}", str(review.count(sev)))
     if review.dropped:
-        table.add_row("🛡️  dropped (outside diff)", str(review.dropped), style="dim")
+        table.add_row("guard: dropped, outside diff", str(review.dropped), style="dim")
     if review.files_skipped:
-        table.add_row("⏭️  skipped files", ", ".join(review.files_skipped), style="dim")
+        table.add_row("skipped files", ", ".join(review.files_skipped), style="dim")
     if table.row_count:
         console.print(table)
     if demo:

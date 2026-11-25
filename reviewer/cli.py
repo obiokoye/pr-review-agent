@@ -164,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
     console = Console()
     llm, demo = make_llm()
     if demo and not getattr(args, "json", False):
-        console.print(f"[yellow]⚠ {DEMO_NOTICE}[/yellow] (set GEMINI_API_KEY or another provider key for real reviews)")
+        console.print(f"[yellow]⚠ {DEMO_NOTICE}[/yellow] (add GEMINI_API_KEY for real reviews)")
 
     if args.command == "review":
         return cmd_review(args, console, llm, demo)
