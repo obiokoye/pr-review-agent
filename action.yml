@@ -1,0 +1,63 @@
+name: "AI PR Reviewer (pr-review-agent)"
+description: "Reviews pull requests with an LLM and leaves inline comments. Gemini, Groq, OpenAI or Anthropic; demo mode without a key."
+author: "Nicholas Okoye"
+branding:
+  icon: eye
+  color: blue
+
+inputs:
+  github-token:
+    description: "Token used to read the diff and post the review"
+    default: ${{ github.token }}
+  provider:
+    description: "gemini | groq | openai | anthropic"
+    default: "gemini"
+  model:
+    description: "Override the provider's default model"
+    default: ""
+  gemini-api-key:
+    default: ""
+  groq-api-key:
+    default: ""
+  openai-api-key:
+    default: ""
+  anthropic-api-key:
+    default: ""
+  max-comments:
+    description: "Maximum inline comments per review"
+    default: "10"
+  fail-on:
+    description: "Fail the check when a comment is at least this severe: never | critical | warning | suggestion | nit"
+    default: "never"
+  request-changes:
+    description: "Use REQUEST_CHANGES (instead of COMMENT) when there is a critical finding"
+    default: "false"
+  ignore:
+    description: "Extra glob patterns to skip, comma separated (lockfiles are always skipped)"
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install reviewer
+      shell: bash
+      run: pip install -q -r "${{ github.action_path }}/requirements.txt"
+    - name: Review pull request
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: python -m reviewer action
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        LLM_PROVIDER: ${{ inputs.provider }}
+        LLM_MODEL: ${{ inputs.model }}
+        GEMINI_API_KEY: ${{ inputs.gemini-api-key }}
+        GROQ_API_KEY: ${{ inputs.groq-api-key }}
+        OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        MAX_COMMENTS: ${{ inputs.max-comments }}
+        FAIL_ON: ${{ inputs.fail-on }}
+        REQUEST_CHANGES: ${{ inputs.request-changes }}
+        IGNORE_PATHS: ${{ inputs.ignore }}
