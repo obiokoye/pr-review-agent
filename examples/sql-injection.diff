@@ -1,0 +1,34 @@
+diff --git a/app/routes/users.py b/app/routes/users.py
+index 3f2a1c4..8b7d9e2 100644
+--- a/app/routes/users.py
++++ b/app/routes/users.py
+@@ -1,14 +1,29 @@
+ from fastapi import APIRouter, Depends, HTTPException
+ from sqlite3 import Connection
+ 
+ from app.db import get_db
++from app.auth import current_user
+ 
+ router = APIRouter()
+ 
+ 
+ @router.get("/users/{user_id}")
+ def get_user(user_id: int, db: Connection = Depends(get_db)):
+     row = db.execute("SELECT id, name FROM users WHERE id = ?", (user_id,)).fetchone()
+     if row is None:
+         raise HTTPException(status_code=404)
+     return dict(row)
++
++
++@router.get("/users/search")
++def search_users(q: str, db: Connection = Depends(get_db)):
++    sql = f"SELECT id, name, email FROM users WHERE name LIKE '%{q}%'"
++    rows = db.execute(sql).fetchall()
++    return [dict(r) for r in rows]
++
++
++@router.delete("/users/{user_id}")
++def delete_user(user_id: int, db: Connection = Depends(get_db)):
++    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
++    db.commit()
++    return {"deleted": user_id}

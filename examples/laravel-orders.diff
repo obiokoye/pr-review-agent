@@ -1,0 +1,33 @@
+diff --git a/app/Http/Controllers/OrderController.php b/app/Http/Controllers/OrderController.php
+index 1a2b3c4..5d6e7f8 100644
+--- a/app/Http/Controllers/OrderController.php
++++ b/app/Http/Controllers/OrderController.php
+@@ -8,7 +8,27 @@ use Illuminate\Http\Request;
+ class OrderController extends Controller
+ {
+     public function index()
+     {
+-        return view('orders.index', ['orders' => Order::paginate(20)]);
++        $orders = Order::latest()->paginate(20);
++
++        foreach ($orders as $order) {
++            $order->customer_name = $order->customer->name;
++        }
++
++        return view('orders.index', ['orders' => $orders]);
+     }
++
++    public function store(Request $request)
++    {
++        $order = Order::create($request->all());
++
++        return redirect()->route('orders.show', $order);
++    }
++
++    public function update(Request $request, Order $order)
++    {
++        $order->update($request->only(['status', 'notes']));
++
++        return back()->with('status', 'Order updated');
++    }
+ }
